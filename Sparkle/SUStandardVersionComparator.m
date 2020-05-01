@@ -33,15 +33,12 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
     kNumberType,
     kStringType,
     kSeparatorType,
-    kDashType,
 };
 
 - (SUCharacterType)typeOfCharacter:(NSString *)character
 {
     if ([character isEqualToString:@"."]) {
         return kSeparatorType;
-    } else if ([character isEqualToString:@"-"]) {
-        return kDashType;
     } else if ([[NSCharacterSet decimalDigitCharacterSet] characterIsMember:[character characterAtIndex:0]]) {
         return kNumberType;
     } else if ([[NSCharacterSet whitespaceAndNewlineCharacterSet] characterIsMember:[character characterAtIndex:0]]) {
@@ -53,7 +50,7 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
     }
 }
 
-- (NSArray<NSString *> *)splitVersionString:(NSString *)version
+- (NSArray *)splitVersionString:(NSString *)version
 {
     NSString *character;
     NSMutableString *s;
@@ -70,9 +67,6 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
     for (i = 1; i <= n; ++i) {
         character = [version substringWithRange:NSMakeRange(i, 1)];
         newType = [self typeOfCharacter:character];
-        if (newType == kDashType) {
-            break;
-        }
         if (oldType != newType || oldType == kSeparatorType) {
             // We've reached a new segment
             NSString *aPart = [[NSString alloc] initWithString:s];
@@ -92,8 +86,8 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
 
 - (NSComparisonResult)compareVersion:(NSString *)versionA toVersion:(NSString *)versionB
 {
-    NSArray<NSString *> *partsA = [self splitVersionString:versionA];
-    NSArray<NSString *> *partsB = [self splitVersionString:versionB];
+    NSArray *partsA = [self splitVersionString:versionA];
+    NSArray *partsB = [self splitVersionString:versionB];
 
     NSString *partA, *partB;
     NSUInteger i, n;

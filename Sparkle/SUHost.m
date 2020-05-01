@@ -14,8 +14,6 @@
 
 #include "AppKitPrevention.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 // This class should not rely on AppKit and should also be process independent
 // For example, it should not have code that tests writabilty to somewhere on disk,
 // as that may depend on the privileges of the process owner. Or code that depends on
@@ -26,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, readwrite) NSBundle *bundle;
 @property (nonatomic, readonly) BOOL isMainBundle;
-@property (copy, nullable) NSString *defaultsDomain;
+@property (copy) NSString *defaultsDomain;
 @property (assign) BOOL usesStandardUserDefaults;
-@property (readonly, copy, nullable) NSString *publicDSAKey;
+@property (readonly, copy) NSString *publicDSAKey;
 
 @end
 
@@ -71,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self.bundle bundlePath];
 }
 
-- (NSString *)name
+- (NSString *__nonnull)name
 {
     NSString *name;
 
@@ -88,23 +86,15 @@ NS_ASSUME_NONNULL_BEGIN
     return [[[NSFileManager defaultManager] displayNameAtPath:[self bundlePath]] stringByDeletingPathExtension];
 }
 
-// @pixeled: throughout sparkle code, this is used to fetch the build number e.g. 2345
-// analog to SUAppcastItem.versionString
-// HENCE the edit to make build number FIRST then fall back to the version string
-// THIS, and the cascading compares in SUBasicUpdateDriver.m bring us back to perfection
-- (NSString *)version
+- (NSString *__nonnull)version
 {
-    NSString *version = version = [self.bundle objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
-    if (!version || [version isEqualToString:@""])  // bt_browser fall back to CFBundleVersion
-        version = [self.bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];  // bt_browser added.  prefer long version string
+    NSString *version = [self objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
     if (!version || [version isEqualToString:@""])
         [NSException raise:@"SUNoVersionException" format:@"This host (%@) has no %@! This attribute is required.", [self bundlePath], (__bridge NSString *)kCFBundleVersionKey];
     return version;
 }
 
-// @pixeled: throughout sparkle code, this is used to fetch the version number, e.g. 1.0.11
-// analog to SUAppcastItem.displayVersionString
-- (NSString *)displayVersion
+- (NSString *__nonnull)displayVersion
 {
     NSString *shortVersionString = [self objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     if (shortVersionString)
@@ -115,18 +105,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isRunningOnReadOnlyVolume
 {
-    NSLog(@"🍒 %s(%@)", __PRETTY_FUNCTION__, [self.bundle bundlePath]);
     struct statfs statfs_info;
     statfs([[self.bundle bundlePath] fileSystemRepresentation], &statfs_info);
     return (statfs_info.f_flags & MNT_RDONLY) != 0;
 }
-
-- (BOOL)isRunningTranslocated
-{
-    NSString *path = [self.bundle bundlePath];
-    return [path rangeOfString:@"/AppTranslocation/"].location != NSNotFound;
-}
-
 
 - (NSString *__nullable)publicEDKey
 {
@@ -169,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self objectForInfoDictionaryKey:SUPublicDSAKeyFileKey];
 }
 
-- (nullable id)objectForInfoDictionaryKey:(NSString *)key
+- (id)objectForInfoDictionaryKey:(NSString *)key
 {
     if (self.isMainBundle) {
         // Common fast path - if we're updating the main bundle, that means our updater and host bundle's lifetime is the same
@@ -193,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [(NSNumber *)[self objectForInfoDictionaryKey:key] boolValue];
 }
 
-- (nullable id)objectForUserDefaultsKey:(NSString *)defaultName
+- (id)objectForUserDefaultsKey:(NSString *)defaultName
 {
     if (!defaultName || !self.defaultsDomain) {
         return nil;
@@ -211,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 // Note this handles nil being passed for defaultName, in which case the user default will be removed
-- (void)setObject:(nullable id)value forUserDefaultsKey:(NSString *)defaultName
+- (void)setObject:(id)value forUserDefaultsKey:(NSString *)defaultName
 {
 	if (self.usesStandardUserDefaults)
 	{
@@ -256,7 +238,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable id)objectForKey:(NSString *)key {
+- (id)objectForKey:(NSString *)key {
     return [self objectForUserDefaultsKey:key] ? [self objectForUserDefaultsKey:key] : [self objectForInfoDictionaryKey:key];
 }
 
@@ -265,5 +247,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

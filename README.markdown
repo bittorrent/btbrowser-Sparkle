@@ -1,11 +1,8 @@
-# Sparkle 1.x [![Build Status](https://travis-ci.org/sparkle-project/Sparkle.svg?branch=master)](https://travis-ci.org/sparkle-project/Sparkle) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![CocoaPods](https://img.shields.io/cocoapods/v/Sparkle.svg?maxAge=2592000)]() <a href="https://www.stackpath.com/?utm_source=sparkle-github&amp;utm_medium=badge&amp;utm_campaign=readme"><img src="https://img.shields.io/badge/sponsored%20by-StackPath-orange.svg" alt="sponsored by: StackPath"></a>
+# Sparkle [![Build Status](https://travis-ci.org/sparkle-project/Sparkle.svg?branch=master)](https://travis-ci.org/sparkle-project/Sparkle) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![CocoaPods](https://img.shields.io/cocoapods/v/Sparkle.svg?maxAge=2592000)]() <a href="https://www.stackpath.com/?utm_source=sparkle-github&amp;utm_medium=badge&amp;utm_campaign=readme"><img src="https://img.shields.io/badge/sponsored%20by-StackPath-orange.svg" alt="sponsored by: StackPath"></a>
 
 Secure and reliable software update framework for Cocoa developers.
 
 <img src="Resources/Screenshot.png" width="732" alt="Sparkle shows familiar update window with release notes">
-
-This branch is the production ready, battle-tested version of Sparkle used by thousands of Mac apps.
-The upcoming Sparkle 2 (currently in beta) can be found in the [2.x branch](https://github.com/sparkle-project/Sparkle/tree/2.x).
 
 ## Features
 
@@ -16,27 +13,32 @@ The upcoming Sparkle 2 (currently in beta) can be found in the [2.x branch](http
 * Supports bundles, preference panes, plugins, and other non-.app software. Can install .pkg files for more complicated products.
 * Handles permissions, quarantine and automatically asks for authentication if needed.
 * Uses RSS-based appcasts for release information. Appcasts are a de-facto standard supported by 3rd party update-tracking programs and websites.
-* Stays hidden until second launch for better first impressions.
+* Sparkle stays hidden until second launch for better first impressions.
 * Truly self-updating — the user can choose to automatically download and install all updates in the background.
+
+## Changes since 1.5b
+
+* Compatibility with macOS Sierra (and all newer versions).
+* Up-to-date with 10.14 SDK and Xcode 10 (supports macOS 10.7+).
+* Important security fixes and more secure signature algorithm.
+* Cleaned up and modernized code, using ARC and Autolayout.
+* Truly automatic background updates (no UI at all) when user agreed to "Automatically download and install updates in the future."
+* Upgraded and more reliable binary delta and code signing verification.
 * Ability to mark updates as critical.
 * Progress and status notifications for the host app.
 
 ## Requirements
 
 * Runtime: macOS 10.7 or greater
-* Build: Xcode 9 and 10.11 SDK or greater
+* Build: Xcode 8 and 10.11 SDK or greater
 * HTTPS server for serving updates (see [App Transport Security](http://sparkle-project.org/documentation/app-transport-security/))
-* No sandboxing. Sparkle 1.x can't update sandboxed apps. [Sparkle 2.x](https://github.com/sparkle-project/Sparkle/tree/2.x) can.
+* No sandboxing. Sparkle 1.x can't update sandboxed apps. Sparkle 2.0 (alpha) can.
 
 ## Usage
 
 See [getting started guide](https://sparkle-project.org/documentation/). No code is necessary, but a bit of Xcode configuration is required.
 
 ## Development
-
-This repository uses git submodules, and will not build unless you clone recursively. Also, GitHub-provided ZIP/tar archives are broken due to GitHub not supporting git submodules properly.
-
-    git clone --recursive https://github.com/sparkle-project/Sparkle
 
 ### Troubleshooting
 

@@ -21,7 +21,6 @@
 #import "SUAppcastItem.h"
 #import "SUApplicationInfo.h"
 #import "SUSystemUpdateInfo.h"
-#import "SUOperatingSystem.h"
 #import "SUTouchBarForwardDeclarations.h"
 #import "SUTouchBarButtonGroup.h"
 
@@ -98,7 +97,7 @@ static NSString *const SUUpdateAlertTouchBarIndentifier = @"" SPARKLE_BUNDLE_IDE
 
 - (void)dealloc {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
-    if (SUAVAILABLE(10, 14)) {
+    if (@available(macOS 10.14, *)) {
         if (self.observingAppearance) {
             [self.window removeObserver:self forKeyPath:@"effectiveAppearance"];
             self.observingAppearance = NO;
@@ -168,7 +167,7 @@ static NSString *const SUUpdateAlertTouchBarIndentifier = @"" SPARKLE_BUNDLE_IDE
     prefs.defaultFontSize = (int)[NSFont systemFontSize];
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
-    if (SUAVAILABLE(10, 14))
+    if (@available(macOS 10.14, *))
     {
         NSBox *darkBackgroundView = [[NSBox alloc] initWithFrame:self.releaseNotesView.frame];
         darkBackgroundView.boxType = NSBoxCustom;
@@ -262,27 +261,9 @@ static NSString *const SUUpdateAlertTouchBarIndentifier = @"" SPARKLE_BUNDLE_IDE
 
     if ([self.updateItem isCriticalUpdate]) {
         self.skipButton.enabled = NO;
-        self.skipButton.hidden = YES;
-        self.laterButton.enabled = NO;
-        self.laterButton.hidden = YES;
     }
 
-    if (![self automaticChecksEnabled]) {
-        self.laterButton.enabled = NO;
-        self.laterButton.hidden = YES;
-    }
-    
     [self.window center];
-}
-
-- (BOOL)automaticChecksEnabled {
-    NSNumber *automaticChecksEnabled = [self.host objectForInfoDictionaryKey:SUEnableAutomaticChecksKey];
-    if (automaticChecksEnabled == nil)
-    {
-        return false;
-    }
-
-    return [automaticChecksEnabled boolValue];
 }
 
 - (BOOL)windowShouldClose:(NSNotification *) __unused note
@@ -327,14 +308,11 @@ static NSString *const SUUpdateAlertTouchBarIndentifier = @"" SPARKLE_BUNDLE_IDE
 - (void)adaptReleaseNotesAppearance
 {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
-    if (SUAVAILABLE(10, 14))
+    if (@available(macOS 10.14, *))
     {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
         NSAppearanceName bestAppearance = [self.window.effectiveAppearance bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
         BOOL isDarkAqua = ([bestAppearance isEqualToString:NSAppearanceNameDarkAqua]);
         self.releaseNotesView.preferences.userStyleSheetEnabled = isDarkAqua;
-#pragma clang diagnostic pop
     }
 #endif
 }
@@ -374,9 +352,9 @@ static NSString *const SUUpdateAlertTouchBarIndentifier = @"" SPARKLE_BUNDLE_IDE
 }
 
 // Clean up the contextual menu.
-- (NSArray<NSMenuItem *> *)webView:(WebView *)__unused sender contextMenuItemsForElement:(NSDictionary *)__unused element defaultMenuItems:(NSArray<NSMenuItem *> *)defaultMenuItems
+- (NSArray *)webView:(WebView *)__unused sender contextMenuItemsForElement:(NSDictionary *)__unused element defaultMenuItems:(NSArray *)defaultMenuItems
 {
-    NSMutableArray<NSMenuItem *> *webViewMenuItems = [defaultMenuItems mutableCopy];
+    NSMutableArray *webViewMenuItems = [defaultMenuItems mutableCopy];
 
 	if (webViewMenuItems)
 	{

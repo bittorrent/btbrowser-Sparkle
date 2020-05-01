@@ -23,12 +23,17 @@ func findOrCreateElement(name: String, parent: XMLElement) -> XMLElement {
         return element;
     }
     let element = XMLElement(name: name);
+    linebreak(parent);
     parent.addChild(element);
     return element;
 }
 
 func text(_ text: String) -> XMLNode {
     return XMLNode.text(withStringValue: text) as! XMLNode
+}
+
+func linebreak(_ element: XMLElement) {
+    element.addChild(text("\n"));
 }
 
 
@@ -65,7 +70,9 @@ func writeAppcast(appcastDestPath: URL, updates: [ArchiveItem]) throws {
         channel = channelNodes[0] as! XMLElement;
     } else {
         channel = XMLElement(name: "channel");
+        linebreak(channel);
         channel.addChild(XMLElement.element(withName: "title", stringValue: appBaseName) as! XMLElement);
+        linebreak(root);
         root.addChild(channel);
     }
 
@@ -83,15 +90,18 @@ func writeAppcast(appcastDestPath: URL, updates: [ArchiveItem]) throws {
 
         if createNewItem {
             item = XMLElement.element(withName: "item") as! XMLElement;
+            linebreak(channel);
             channel.addChild(item);
         } else {
             item = existingItems[0] as! XMLElement;
         }
 
         if nil == findElement(name: "title", parent: item) {
+            linebreak(item);
             item.addChild(XMLElement.element(withName: "title", stringValue: update.shortVersion) as! XMLElement);
         }
         if nil == findElement(name: "pubDate", parent: item) {
+            linebreak(item);
             item.addChild(XMLElement.element(withName: "pubDate", stringValue: update.pubDate) as! XMLElement);
         }
 
@@ -105,43 +115,25 @@ func writeAppcast(appcastDestPath: URL, updates: [ArchiveItem]) throws {
         var minVer = findElement(name: SUAppcastElementMinimumSystemVersion, parent: item);
         if nil == minVer {
             minVer = XMLElement.element(withName: SUAppcastElementMinimumSystemVersion, uri: sparkleNS) as? XMLElement;
+            linebreak(item);
             item.addChild(minVer!);
         }
         minVer?.setChildren([text(update.minimumSystemVersion)]);
 
-        let releaseNotesXpath = "\(SUAppcastElementReleaseNotesLink)"
-        let results = ((try? item.nodes(forXPath: releaseNotesXpath)) as? [XMLElement])?
-            .filter { !($0.attributes ?? [])
-            .contains(where: { $0.name == SUXMLLanguage }) }
-        let relElement = results?.first
+        let relElement = findElement(name: SUAppcastElementReleaseNotesLink, parent: item);
         if let url = update.releaseNotesURL {
             if nil == relElement {
+                linebreak(item);
                 item.addChild(XMLElement.element(withName: SUAppcastElementReleaseNotesLink, stringValue: url.absoluteString) as! XMLElement);
             }
         } else if let childIndex = relElement?.index {
             item.removeChild(at: childIndex);
         }
-
-        let languageNotesNodes = ((try? item.nodes(forXPath: releaseNotesXpath)) as? [XMLElement])?
-            .map { ($0, $0.attribute(forName: SUXMLLanguage)?.stringValue )}
-            .filter { $0.1 != nil } ?? []
-        for (node, language) in languageNotesNodes.reversed()
-            where !update.localizedReleaseNotes().contains(where: { $0.0 == language }) {
-            item.removeChild(at: node.index)
-        }
-        for (language, url) in update.localizedReleaseNotes() {
-            if !languageNotesNodes.contains(where: { $0.1 == language }) {
-                let localizedNode = XMLNode.element(withName: SUAppcastElementReleaseNotesLink,
-                                                    children: [XMLNode.text(withStringValue: url.lastPathComponent) as! XMLNode],
-                                                    attributes: [XMLNode.attribute(withName: SUXMLLanguage,
-                                                                                   stringValue: language) as! XMLNode])
-                item.addChild(localizedNode as! XMLNode)
-            }
-        }
-
+        
         var enclosure = findElement(name: "enclosure", parent: item);
         if nil == enclosure {
             enclosure = XMLElement.element(withName: "enclosure") as? XMLElement;
+            linebreak(item);
             item.addChild(enclosure!);
         }
 
@@ -167,6 +159,7 @@ func writeAppcast(appcastDestPath: URL, updates: [ArchiveItem]) throws {
             var deltas = findElement(name: SUAppcastElementDeltas, parent: item);
             if nil == deltas {
                 deltas = XMLElement.element(withName: SUAppcastElementDeltas, uri: sparkleNS) as? XMLElement;
+                linebreak(item);
                 item.addChild(deltas!);
             } else {
                 deltas!.setChildren([]);
@@ -186,12 +179,17 @@ func writeAppcast(appcastDestPath: URL, updates: [ArchiveItem]) throws {
                 if let sig = delta.dsaSignature {
                     attributes.append(XMLNode.attribute(withName: SUAppcastAttributeDSASignature, uri: sparkleNS, stringValue: sig) as! XMLNode);
                 }
+                linebreak(deltas!);
                 deltas!.addChild(XMLNode.element(withName: "enclosure", children: nil, attributes: attributes) as! XMLElement);
             }
         }
+        if createNewItem {
+            linebreak(item);
+            linebreak(channel);
+        }
     }
 
-    let options: XMLNode.Options = [.nodeCompactEmptyElement, .nodePrettyPrint];
+    let options = XMLNode.Options.nodeCompactEmptyElement;
     let docData = doc.xmlData(options:options);
     let _ = try XMLDocument(data: docData, options:XMLNode.Options()); // Verify that it was generated correctly, which does not always happen!
     try docData.write(to: appcastDestPath);

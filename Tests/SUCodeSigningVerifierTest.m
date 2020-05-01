@@ -167,14 +167,13 @@
     return success;
 }
 
-- (BOOL)codesignAppURL:(NSURL *)appURL
+- (BOOL)codesignAppURL:(NSURL *)appPath
 {
     BOOL success = NO;
     @try
     {
         // ad-hoc signing with the dash
-        NSString *appPath = [appURL path];
-        NSArray<NSString *> *arguments = @[ @"--force", @"--deep", @"--sign", @"-", appPath ];
+        NSArray *arguments = @[ @"--force", @"--deep", @"--sign", @"-", appPath ];
         NSTask *task = [NSTask launchedTaskWithLaunchPath:@"/usr/bin/codesign" arguments:arguments];
         [task waitUntilExit];
         success = (task.terminationStatus == 0);

@@ -93,11 +93,7 @@ class ArchiveItem: CustomStringConvertible {
 
             var feedURL:URL? = nil;
             if let feedURLStr = infoPlist["SUFeedURL"] as? String {
-                feedURL = URL(string: feedURLStr)
-                if feedURL?.pathExtension == "php" {
-                    feedURL = feedURL!.deletingLastPathComponent()
-                    feedURL = feedURL!.appendingPathComponent("appcast.xml")
-                }
+                feedURL = URL(string: feedURLStr);
             }
 
             try self.init(version: version,
@@ -187,24 +183,6 @@ class ArchiveItem: CustomStringConvertible {
             return URL(string: escapedFilename, relativeTo: relative)
         }
         return URL(string: escapedFilename)
-    }
-
-    func localizedReleaseNotes() -> [(String, URL)] {
-        let fileManager = FileManager.default
-        var basename = archivePath.deletingPathExtension()
-        if basename.pathExtension == "tar" {
-            basename = basename.deletingPathExtension()
-        }
-        var localizedReleaseNotes = [(String, URL)]()
-        for languageCode in Locale.isoLanguageCodes {
-            let localizedReleaseNoteURL = basename
-                .appendingPathExtension(languageCode)
-                .appendingPathExtension("html")
-            if fileManager.fileExists(atPath: localizedReleaseNoteURL.path) {
-                localizedReleaseNotes.append((languageCode, localizedReleaseNoteURL))
-            }
-        }
-        return localizedReleaseNotes
     }
 
     let mimeType = "application/octet-stream";
