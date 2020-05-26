@@ -56,15 +56,25 @@
     return self;
 }
 
+- (BOOL)shouldShowUpdateAlertForItem:(SUAppcastItem *)__unused item {
+    return YES;
+}
+
 - (void)didFindValidUpdate
 {
     id<SUUpdaterPrivate> updater = self.updater;
-    if ([[updater delegate] respondsToSelector:@selector(updater:didFindValidUpdate:)]) {
-        [[updater delegate] updater:self.updater didFindValidUpdate:self.updateItem];
+    if ([updater.delegate respondsToSelector:@selector(updater:didFindValidUpdate:)]) {
+        [updater.delegate updater:self.updater didFindValidUpdate:self.updateItem];
     }
 
     if (self.automaticallyInstallUpdates) {
         [self updateAlertFinishedWithChoice:SUInstallUpdateChoice];
+        return;
+    }
+
+    SUAppcastItem *updateItem = self.updateItem;
+    if (![self shouldShowUpdateAlertForItem:updateItem]) {
+        [self abortUpdate];
         return;
     }
 
@@ -73,8 +83,8 @@
     }];
 
     id<SUVersionDisplay> versDisp = nil;
-    if ([[updater delegate] respondsToSelector:@selector(versionDisplayerForUpdater:)]) {
-        versDisp = [[updater delegate] versionDisplayerForUpdater:self.updater];
+    if ([updater.delegate respondsToSelector:@selector(versionDisplayerForUpdater:)]) {
+        versDisp = [updater.delegate versionDisplayerForUpdater:self.updater];
     }
     [self.updateAlert setVersionDisplayer:versDisp];
 
@@ -104,8 +114,8 @@
 - (void)didNotFindUpdate
 {
     id<SUUpdaterPrivate> updater = self.updater;
-    if ([[updater delegate] respondsToSelector:@selector(updaterDidNotFindUpdate:)])
-        [[updater delegate] updaterDidNotFindUpdate:self.updater];
+    if ([updater.delegate respondsToSelector:@selector(updaterDidNotFindUpdate:)])
+        [updater.delegate updaterDidNotFindUpdate:self.updater];
     [[NSNotificationCenter defaultCenter] postNotificationName:SUUpdaterDidNotFindUpdateNotification object:self.updater];
 
     if (!self.automaticallyInstallUpdates) {
@@ -125,29 +135,47 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidBecomeActiveNotification object:NSApp];
 }
 
+- (void)didDismissAlertPermanently:(BOOL)permanently forItem:(SUAppcastItem *)item {
+    if (item == nil) {
+        return;
+    }
+    id<SUUpdaterPrivate> updater = self.updater;
+    if ([updater.delegate respondsToSelector:@selector(updater:didDismissUpdateAlertPermanently:forItem:)]) {
+        [updater.delegate updater:self.updater didDismissUpdateAlertPermanently:permanently forItem:item];
+    }
+}
+
 - (void)updateAlertFinishedWithChoice:(SUUpdateAlertChoice)choice
 {
-    self.updateAlert = nil;
-    [self.host setObject:nil forUserDefaultsKey:SUSkippedVersionKey];
-    switch (choice) {
-        case SUInstallUpdateChoice:
-            [self downloadUpdate];
-            break;
-
-        case SUOpenInfoURLChoice:
-            [[NSWorkspace sharedWorkspace] openURL:[self.updateItem infoURL]];
-            [self abortUpdate];
-            break;
-
-        case SUSkipThisVersionChoice:
-            [self.host setObject:[self.updateItem versionString] forUserDefaultsKey:SUSkippedVersionKey];
-            [self abortUpdate];
-            break;
-
-        case SURemindMeLaterChoice:
-            [self abortUpdate];
-            break;
-    }
+   id<SUUpdaterPrivate> updater = self.updater;
+   self.updateAlert = nil;
+   [self.host setObject:nil forUserDefaultsKey:SUSkippedVersionKey];
+   switch (choice) {
+      case SUInstallUpdateChoice:
+         [self didDismissAlertPermanently:NO forItem:self.updateItem];
+         [self downloadUpdate];
+         break;
+         
+      case SUOpenInfoURLChoice:
+         [self didDismissAlertPermanently:NO forItem:self.updateItem];
+         [[NSWorkspace sharedWorkspace] openURL:[self.updateItem infoURL]];
+         [self abortUpdate];
+         break;
+         
+      case SUSkipThisVersionChoice:
+         if ([updater.delegate respondsToSelector:@selector(updater:userDidSkipThisVersion:)]) {
+            [updater.delegate updater:self.updater userDidSkipThisVersion:self.updateItem];
+         }
+         [self didDismissAlertPermanently:YES forItem:self.updateItem];
+         [self.host setObject:[self.updateItem versionString] forUserDefaultsKey:SUSkippedVersionKey];
+         [self abortUpdate];
+         break;
+         
+      case SURemindMeLaterChoice:
+         [self didDismissAlertPermanently:NO forItem:self.updateItem];
+         [self abortUpdate];
+         break;
+   }
 }
 
 - (void)downloadUpdate
@@ -232,8 +260,8 @@
         [self.download cancel];
         
         id<SUUpdaterPrivate> updater = self.updater;
-        if ([[updater delegate] respondsToSelector:@selector(userDidCancelDownload:)]) {
-            [[updater delegate] userDidCancelDownload:self.updater];
+        if ([updater.delegate respondsToSelector:@selector(userDidCancelDownload:)]) {
+            [updater.delegate userDidCancelDownload:self.updater];
         }
     }
     [self abortUpdate];
@@ -340,8 +368,8 @@
 - (void)showAlert:(NSAlert *)alert
 {
     id<SUUpdaterPrivate> updater = self.updater;
-    if ([[updater delegate] respondsToSelector:@selector(updaterWillShowModalAlert:)]) {
-        [[updater delegate] updaterWillShowModalAlert:self.updater];
+    if ([updater.delegate respondsToSelector:@selector(updaterWillShowModalAlert:)]) {
+        [updater.delegate updaterWillShowModalAlert:self.updater];
     }
 
     // When showing a modal alert we need to ensure that background applications
@@ -351,8 +379,8 @@
     [alert setIcon:[SUApplicationInfo bestIconForHost:self.host]];
     [alert runModal];
 
-    if ([[updater delegate] respondsToSelector:@selector(updaterDidShowModalAlert:)])
-        [[updater delegate] updaterDidShowModalAlert:self.updater];
+    if ([updater.delegate respondsToSelector:@selector(updaterDidShowModalAlert:)])
+        [updater.delegate updaterDidShowModalAlert:self.updater];
 }
 
 @end

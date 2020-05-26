@@ -31,3 +31,5 @@
 #import "SUCodeSigningVerifier.h"
 
 #endif
+
+// #1716 auto update restart 5/26/2020

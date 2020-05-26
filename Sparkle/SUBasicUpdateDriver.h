@@ -55,6 +55,8 @@
 - (void)abortUpdateWithError:(NSError *)error;
 - (void)terminateApp;
 
+- (BOOL)shouldShowUpdateAlertForItem:(SUAppcastItem *)item;
+
 @end
 
 #endif
