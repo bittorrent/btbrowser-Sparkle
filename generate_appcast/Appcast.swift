@@ -89,7 +89,7 @@ func makeAppcast(archivesSourceDir: URL, keys: PrivateKeys, verbose: Bool) throw
                 }
 
                 // No downgrades
-                if .orderedAscending != comparator.compareVersion(item.version, toVersion: latestItem.version) {
+                if .orderedAscending != comparator._compareVersion(item.version, toVersion: latestItem.version) {
                     continue;
                 }
                 // Old version will not be able to verify the new version
