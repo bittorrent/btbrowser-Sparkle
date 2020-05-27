@@ -48,7 +48,6 @@ SU_EXPORT @interface SUStandardVersionComparator : NSObject <SUVersionComparison
 
     See the implementation for more details.
 */
-// this is now "private"
 - (NSComparisonResult)compareVersion:(NSString *)versionA toVersion:(NSString *)versionB;
 
 // we use these instead everywhere now
