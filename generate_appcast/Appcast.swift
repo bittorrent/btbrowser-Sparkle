@@ -20,7 +20,7 @@ func makeAppcast(archivesSourceDir: URL, keys: PrivateKeys, verbose: Bool) throw
 
     let allUpdates = (try unarchiveUpdates(archivesSourceDir: archivesSourceDir, archivesDestDir: cacheDir, verbose:verbose))
         .sorted(by: {
-            .orderedDescending == comparator.compareVersion($0.version, toVersion:$1.version)
+            .orderedDescending == comparator._compareVersion($0.version, toVersion:$1.version)
         })
 
     if allUpdates.count == 0 {

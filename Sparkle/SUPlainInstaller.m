@@ -224,27 +224,30 @@
 
 - (BOOL)performInitialInstallation:(NSError * __autoreleasing *)error
 {
-    BOOL allowDowngrades = SPARKLE_AUTOMATED_DOWNGRADES;
-
-    // Prevent malicious downgrades
-    if (!allowDowngrades) {
-        NSString *hostVersion = [self.host version];
-
-        NSBundle *bundle = [NSBundle bundleWithPath:self.bundlePath];
-        SUHost *updateHost = [[SUHost alloc] initWithBundle:bundle];
-        NSString *updateVersion = [updateHost objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
-
-        id<SUVersionComparison> comparator = [[SUStandardVersionComparator alloc] init];
-        if (!updateVersion || [comparator compareVersion:hostVersion toVersion:updateVersion] == NSOrderedDescending) {
-            if (error != NULL) {
-                NSString *errorMessage = [NSString stringWithFormat:@"For security reasons, updates that downgrade version of the application are not allowed. Refusing to downgrade app from version %@ to %@. Aborting update.", hostVersion, updateVersion];
-
-                *error = [NSError errorWithDomain:SUSparkleErrorDomain code:SUDowngradeError userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
-            }
-            return NO;
-        }
-    }
-    return YES;
+   BOOL allowDowngrades = SPARKLE_AUTOMATED_DOWNGRADES;
+   
+   // Prevent malicious downgrades
+   if (!allowDowngrades) {
+      NSString *hostVersion = [self.host version];
+      
+      NSBundle *bundle = [NSBundle bundleWithPath:self.bundlePath];
+      SUHost *updateHost = [[SUHost alloc] initWithBundle:bundle];
+      NSString *updateVersion = [updateHost objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
+      
+      id<SUVersionComparison> comparator = [[SUStandardVersionComparator alloc] init];
+//      NSComparisonResult result = [comparator compareVersion:hostVersion toVersion:updateVersion];
+      NSComparisonResult result = [comparator cascadeCompare:self.host updateHost:updateHost];
+      
+      if (!updateVersion || result == NSOrderedDescending) {
+         if (error != NULL) {
+            NSString *errorMessage = [NSString stringWithFormat:@"For security reasons, updates that downgrade version of the application are not allowed. Refusing to downgrade app from version %@ to %@. Aborting update.", hostVersion, updateVersion];
+            
+            *error = [NSError errorWithDomain:SUSparkleErrorDomain code:SUDowngradeError userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
+         }
+         return NO;
+      }
+   }
+   return YES;
 }
 
 - (BOOL)performFinalInstallationProgressBlock:(nullable void(^)(double))cb error:(NSError *__autoreleasing*)error
