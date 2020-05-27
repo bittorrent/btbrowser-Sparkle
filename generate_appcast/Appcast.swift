@@ -20,7 +20,7 @@ func makeAppcast(archivesSourceDir: URL, keys: PrivateKeys, verbose: Bool) throw
 
     let allUpdates = (try unarchiveUpdates(archivesSourceDir: archivesSourceDir, archivesDestDir: cacheDir, verbose:verbose))
         .sorted(by: {
-            .orderedDescending == comparator._compareVersion($0.version, toVersion:$1.version)
+            .orderedDescending == comparator.xcompareVersion($0.version, toVersion:$1.version)
         })
 
     if allUpdates.count == 0 {
@@ -89,7 +89,7 @@ func makeAppcast(archivesSourceDir: URL, keys: PrivateKeys, verbose: Bool) throw
                 }
 
                 // No downgrades
-                if .orderedAscending != comparator._compareVersion(item.version, toVersion: latestItem.version) {
+                if .orderedAscending != comparator.xcompareVersion(item.version, toVersion: latestItem.version) {
                     continue;
                 }
                 // Old version will not be able to verify the new version

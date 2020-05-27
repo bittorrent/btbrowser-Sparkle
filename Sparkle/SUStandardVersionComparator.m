@@ -84,7 +84,7 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
     return parts;
 }
 
-- (NSComparisonResult)_compareVersion:(NSString *)versionA toVersion:(NSString *)versionB
+- (NSComparisonResult)xcompareVersion:(NSString *)versionA toVersion:(NSString *)versionB
 {
     NSArray *partsA = [self splitVersionString:versionA];
     NSArray *partsB = [self splitVersionString:versionB];
@@ -172,10 +172,10 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
 }
 
 - (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_ {
-   NSComparisonResult compare = [self _compareVersion:host_.displayVersion toVersion:item_.displayVersionString];
+   NSComparisonResult compare = [self xcompareVersion:host_.displayVersion toVersion:item_.displayVersionString];
    NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", host_.displayVersion, item_.displayVersionString);
    if (compare == NSOrderedSame) { // break tie with build number
-      compare = [self _compareVersion:host_.version toVersion:item_.versionString];
+      compare = [self xcompareVersion:host_.version toVersion:item_.versionString];
       NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", host_.version, item_.versionString);
    }
    switch (compare) {
@@ -187,10 +187,10 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
 }
 
 - (NSComparisonResult)cascadeCompare:(SUHost*)host_ updateHost:(SUHost*)uhost_ {
-   NSComparisonResult compare = [self _compareVersion:host_.displayVersion toVersion:uhost_.displayVersion];
+   NSComparisonResult compare = [self xcompareVersion:host_.displayVersion toVersion:uhost_.displayVersion];
    NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", host_.displayVersion, uhost_.displayVersion);
    if (compare == NSOrderedSame) { // break tie with build number
-      compare = [self _compareVersion:host_.version toVersion:uhost_.version];
+      compare = [self xcompareVersion:host_.version toVersion:uhost_.version];
       NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", host_.version, uhost_.version);
    }
    switch (compare) {
@@ -202,10 +202,10 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
 }
 
 - (NSComparisonResult)cascadeCompareAppcast:(SUAppcastItem*)lhs_ appcast:(SUAppcastItem*)rhs_ {
-   NSComparisonResult compare = [self _compareVersion:lhs_.displayVersionString toVersion:rhs_.displayVersionString];
+   NSComparisonResult compare = [self xcompareVersion:lhs_.displayVersionString toVersion:rhs_.displayVersionString];
    NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", lhs_.displayVersionString, rhs_.displayVersionString);
    if (compare == NSOrderedSame) { // break tie with build number
-      compare = [self _compareVersion:lhs_.versionString toVersion:rhs_.versionString];
+      compare = [self xcompareVersion:lhs_.versionString toVersion:rhs_.versionString];
       NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", lhs_.versionString, rhs_.versionString);
    }
    switch (compare) {
