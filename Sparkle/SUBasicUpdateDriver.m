@@ -138,10 +138,10 @@
 
     // Check minimum and maximum System Version
     if ([ui minimumSystemVersion] != nil && ![[ui minimumSystemVersion] isEqualToString:@""]) {
-        minimumVersionOK = [versionComparator xcompareVersion:[ui minimumSystemVersion] toVersion:[SUOperatingSystem systemVersionString]] != NSOrderedDescending;
+        minimumVersionOK = [versionComparator compareVersion:[ui minimumSystemVersion] toVersion:[SUOperatingSystem systemVersionString]] != NSOrderedDescending;
     }
     if ([ui maximumSystemVersion] != nil && ![[ui maximumSystemVersion] isEqualToString:@""]) {
-        maximumVersionOK = [versionComparator xcompareVersion:[ui maximumSystemVersion] toVersion:[SUOperatingSystem systemVersionString]] != NSOrderedAscending;
+        maximumVersionOK = [versionComparator compareVersion:[ui maximumSystemVersion] toVersion:[SUOperatingSystem systemVersionString]] != NSOrderedAscending;
     }
 
     return minimumVersionOK && maximumVersionOK && osOK;
@@ -155,9 +155,9 @@
 
 - (BOOL)itemContainsSkippedVersion:(SUAppcastItem *)ui
 {
-   NSString *skippedVersion = [self.host objectForUserDefaultsKey:SUSkippedVersionKey];
-   if (skippedVersion == nil) { return NO; }
-   return [[self versionComparator] xcompareVersion:[ui versionString] toVersion:skippedVersion] != NSOrderedDescending;
+    NSString *skippedVersion = [self.host objectForUserDefaultsKey:SUSkippedVersionKey];
+	if (skippedVersion == nil) { return NO; }
+    return [[self versionComparator] compareVersion:[ui versionString] toVersion:skippedVersion] != NSOrderedDescending;
 }
 
 - (BOOL)itemContainsValidUpdate:(SUAppcastItem *)ui

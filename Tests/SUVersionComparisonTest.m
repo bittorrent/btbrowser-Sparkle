@@ -16,7 +16,7 @@
 
 @implementation SUVersionComparisonTestCase
 
-#define SUAssertOrder(comparator, a, b, c) XCTAssertTrue([comparator xcompareVersion:a toVersion:b] == c, @"b should be newer than a!")
+#define SUAssertOrder(comparator, a, b, c) XCTAssertTrue([comparator compareVersion:a toVersion:b] == c, @"b should be newer than a!")
 #define SUAssertAscending(comparator, a, b) SUAssertOrder(comparator, a, b, NSOrderedAscending)
 #define SUAssertDescending(comparator, a, b) SUAssertOrder(comparator, a, b, NSOrderedDescending)
 #define SUAssertEqual(comparator, a, b) SUAssertOrder(comparator, a, b, NSOrderedSame)

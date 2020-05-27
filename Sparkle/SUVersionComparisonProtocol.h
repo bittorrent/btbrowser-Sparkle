@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     Should return NSOrderedAscending if b > a, NSOrderedDescending if b < a,
     and NSOrderedSame if they are equivalent.
 */
-- (NSComparisonResult)xcompareVersion:(NSString *)versionA toVersion:(NSString *)versionB; // *** MAY BE CALLED ON NON-MAIN THREAD!
+- (NSComparisonResult)compareVersion:(NSString *)versionA toVersion:(NSString *)versionB; // *** MAY BE CALLED ON NON-MAIN THREAD!
 - (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_;
 - (NSComparisonResult)cascadeCompare:(SUHost*)host_ updateHost:(SUHost*)uhost_;
 - (NSComparisonResult)cascadeCompareAppcast:(SUAppcastItem*)lhs_ appcast:(SUAppcastItem*)rhs_;

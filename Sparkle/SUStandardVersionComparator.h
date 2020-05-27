@@ -49,7 +49,7 @@ SU_EXPORT @interface SUStandardVersionComparator : NSObject <SUVersionComparison
     See the implementation for more details.
 */
 // this is now "private"
-- (NSComparisonResult)xcompareVersion:(NSString *)versionA toVersion:(NSString *)versionB;
+- (NSComparisonResult)compareVersion:(NSString *)versionA toVersion:(NSString *)versionB;
 
 // we use these instead everywhere now
 - (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_;
