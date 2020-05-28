@@ -50,11 +50,6 @@ SU_EXPORT @interface SUStandardVersionComparator : NSObject <SUVersionComparison
 */
 - (NSComparisonResult)compareVersion:(NSString *)versionA toVersion:(NSString *)versionB;
 
-// we use these instead everywhere now
-+ (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_;
-+ (NSComparisonResult)cascadeCompare:(SUHost*)host_ updateHost:(SUHost*)uhost_;
-+ (NSComparisonResult)cascadeCompareAppcast:(SUAppcastItem*)lhs_ appcast:(SUAppcastItem*)rhs_;
-
 @end
 
 NS_ASSUME_NONNULL_END

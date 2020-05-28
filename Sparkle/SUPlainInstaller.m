@@ -234,7 +234,7 @@
       SUHost *updateHost = [[SUHost alloc] initWithBundle:bundle];
       NSString *updateVersion = [updateHost objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
       
-      NSComparisonResult result = [SUStandardVersionComparator cascadeCompare:self.host updateHost:updateHost];
+      NSComparisonResult result = [self cascadeCompare:self.host updateHost:updateHost];
       
       if (!updateVersion || result == NSOrderedDescending) {
          if (error != NULL) {
@@ -246,6 +246,22 @@
       }
    }
    return YES;
+}
+
+- (NSComparisonResult)cascadeCompare:(SUHost*)host_ updateHost:(SUHost*)uhost_ {
+   SUStandardVersionComparator* this = [[SUStandardVersionComparator alloc] init];
+   NSComparisonResult compare = [this compareVersion:host_.displayVersion toVersion:uhost_.displayVersion];
+   NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", host_.displayVersion, uhost_.displayVersion);
+   if (compare == NSOrderedSame) { // break tie with build number
+      compare = [this compareVersion:host_.version toVersion:uhost_.version];
+      NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", host_.version, uhost_.version);
+   }
+   switch (compare) {
+      case NSOrderedAscending:   NSLog(@"✨ newer version on server");   break;
+      case NSOrderedSame:        NSLog(@"✨ same version as on server"); break;
+      case NSOrderedDescending:  NSLog(@"✨ newer version running");     break;
+   }
+   return compare;
 }
 
 - (BOOL)performFinalInstallationProgressBlock:(nullable void(^)(double))cb error:(NSError *__autoreleasing*)error
