@@ -234,9 +234,7 @@
       SUHost *updateHost = [[SUHost alloc] initWithBundle:bundle];
       NSString *updateVersion = [updateHost objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
       
-      id<SUVersionComparison> comparator = [[SUStandardVersionComparator alloc] init];
-//      NSComparisonResult result = [comparator compareVersion:hostVersion toVersion:updateVersion];
-      NSComparisonResult result = [comparator cascadeCompare:self.host updateHost:updateHost];
+      NSComparisonResult result = [SUStandardVersionComparator cascadeCompare:self.host updateHost:updateHost];
       
       if (!updateVersion || result == NSOrderedDescending) {
          if (error != NULL) {

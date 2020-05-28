@@ -9,16 +9,12 @@
 #ifndef SUVERSIONCOMPARISONPROTOCOL_H
 #define SUVERSIONCOMPARISONPROTOCOL_H
 
-//#if __has_feature(modules)
-//@import Foundation;
-//#else
-//#import <Foundation/Foundation.h>
-//#endif
+#if __has_feature(modules)
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
 #import "SUExport.h"
-
-@class SUAppcastItem;
-@class SUHost;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,10 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
     and NSOrderedSame if they are equivalent.
 */
 - (NSComparisonResult)compareVersion:(NSString *)versionA toVersion:(NSString *)versionB; // *** MAY BE CALLED ON NON-MAIN THREAD!
-
-- (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_;
-- (NSComparisonResult)cascadeCompare:(SUHost*)host_ updateHost:(SUHost*)uhost_;
-- (NSComparisonResult)cascadeCompareAppcast:(SUAppcastItem*)lhs_ appcast:(SUAppcastItem*)rhs_;
 
 @end
 

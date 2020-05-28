@@ -98,29 +98,23 @@
 
 + (SUAppcastItem *)bestItemFromAppcastItems:(NSArray *)appcastItems getDeltaItem:(SUAppcastItem * __autoreleasing *)deltaItem withHostVersion:(NSString *)hostVersion comparator:(id<SUVersionComparison>)comparator
 {
-   SUAppcastItem *item = nil;
-   for(SUAppcastItem *candidate in appcastItems) {
-      if ([[self class] hostSupportsItem:candidate]) {
-//         NSComparisonResult result = [comparator compareVersion:item.versionString toVersion:candidate.versionString];
-         if (item == nil) {
-            item = candidate;
-         } else {
-            NSComparisonResult result = [comparator cascadeCompareAppcast:item appcast:candidate];
-            if (result == NSOrderedAscending) {
-               item = candidate;
+    SUAppcastItem *item = nil;
+    for(SUAppcastItem *candidate in appcastItems) {
+        if ([[self class] hostSupportsItem:candidate]) {
+            if (!item || [comparator compareVersion:item.versionString toVersion:candidate.versionString] == NSOrderedAscending) {
+                item = candidate;
             }
-         }
-      }
-   }
-   
-   if (item && deltaItem) {
-      SUAppcastItem *deltaUpdateItem = [[item deltaUpdates] objectForKey:hostVersion];
-      if (deltaUpdateItem && [[self class] hostSupportsItem:deltaUpdateItem]) {
-         *deltaItem = deltaUpdateItem;
-      }
-   }
-   
-   return item;
+        }
+    }
+
+    if (item && deltaItem) {
+        SUAppcastItem *deltaUpdateItem = [[item deltaUpdates] objectForKey:hostVersion];
+        if (deltaUpdateItem && [[self class] hostSupportsItem:deltaUpdateItem]) {
+            *deltaItem = deltaUpdateItem;
+        }
+    }
+
+    return item;
 }
 
 + (BOOL)hostSupportsItem:(SUAppcastItem *)ui
@@ -149,8 +143,7 @@
 
 - (BOOL)isItemNewer:(SUAppcastItem *)ui
 {
-   id<SUVersionComparison> versionComparator = [[SUStandardVersionComparator alloc] init];
-   return [versionComparator cascadeCompare:self.host appcast:ui] == NSOrderedAscending;
+   return [SUStandardVersionComparator cascadeCompare:self.host appcast:ui] == NSOrderedAscending;
 }
 
 - (BOOL)itemContainsSkippedVersion:(SUAppcastItem *)ui
