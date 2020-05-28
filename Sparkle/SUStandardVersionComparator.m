@@ -8,8 +8,8 @@
 
 #import "SUVersionComparisonProtocol.h"
 #import "SUStandardVersionComparator.h"
-
-
+#import "SUHost.h"
+#import "SUAppcastItem.h"
 #include "AppKitPrevention.h"
 
 @implementation SUStandardVersionComparator
@@ -171,5 +171,53 @@ typedef NS_ENUM(NSInteger, SUCharacterType) {
     return NSOrderedSame;
 }
 
++ (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_ {
+   SUStandardVersionComparator* this = [[SUStandardVersionComparator alloc] init];
+   
+   NSComparisonResult compare = [this compareVersion:host_.displayVersion toVersion:item_.displayVersionString];
+   NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", host_.displayVersion, item_.displayVersionString);
+   if (compare == NSOrderedSame) { // break tie with build number
+      compare = [this compareVersion:host_.version toVersion:item_.versionString];
+      NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", host_.version, item_.versionString);
+   }
+   switch (compare) {
+      case NSOrderedAscending:   NSLog(@"✨ newer version on server");   break;
+      case NSOrderedSame:        NSLog(@"✨ same version as on server"); break;
+      case NSOrderedDescending:  NSLog(@"✨ newer version running");     break;
+   }
+   return compare;
+}
+
++ (NSComparisonResult)cascadeCompare:(SUHost*)host_ updateHost:(SUHost*)uhost_ {
+   SUStandardVersionComparator* this = [[SUStandardVersionComparator alloc] init];
+   NSComparisonResult compare = [this compareVersion:host_.displayVersion toVersion:uhost_.displayVersion];
+   NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", host_.displayVersion, uhost_.displayVersion);
+   if (compare == NSOrderedSame) { // break tie with build number
+      compare = [this compareVersion:host_.version toVersion:uhost_.version];
+      NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", host_.version, uhost_.version);
+   }
+   switch (compare) {
+      case NSOrderedAscending:   NSLog(@"✨ newer version on server");   break;
+      case NSOrderedSame:        NSLog(@"✨ same version as on server"); break;
+      case NSOrderedDescending:  NSLog(@"✨ newer version running");     break;
+   }
+   return compare;
+}
+
++ (NSComparisonResult)cascadeCompareAppcast:(SUAppcastItem*)lhs_ appcast:(SUAppcastItem*)rhs_ {
+   SUStandardVersionComparator* this = [[SUStandardVersionComparator alloc] init];
+   NSComparisonResult compare = [this compareVersion:lhs_.displayVersionString toVersion:rhs_.displayVersionString];
+   NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", lhs_.displayVersionString, rhs_.displayVersionString);
+   if (compare == NSOrderedSame) { // break tie with build number
+      compare = [this compareVersion:lhs_.versionString toVersion:rhs_.versionString];
+      NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", lhs_.versionString, rhs_.versionString);
+   }
+   switch (compare) {
+      case NSOrderedAscending:   NSLog(@"✨ newer version on server");   break;
+      case NSOrderedSame:        NSLog(@"✨ same version as on server"); break;
+      case NSOrderedDescending:  NSLog(@"✨ newer version running");     break;
+   }
+   return compare;
+}
 
 @end

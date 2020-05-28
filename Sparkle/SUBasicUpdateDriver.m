@@ -143,7 +143,7 @@
 
 - (BOOL)isItemNewer:(SUAppcastItem *)ui
 {
-   return [self cascadeCompare:self.host appcast:ui] == NSOrderedAscending;
+   return [SUStandardVersionComparator cascadeCompare:self.host appcast:ui] == NSOrderedAscending;
 }
 
 - (BOOL)itemContainsSkippedVersion:(SUAppcastItem *)ui
@@ -201,23 +201,6 @@
         self.updateItem = nil;
         [self performSelectorOnMainThread:@selector(didNotFindUpdate) withObject:nil waitUntilDone:NO];
     }
-}
-
-// @pixeled: do this universally the same way, every time we need to
-
-- (NSComparisonResult)cascadeCompare:(SUHost*)host_ appcast:(SUAppcastItem*)item_ {
-   NSComparisonResult compare = [self.versionComparator compareVersion:host_.displayVersion toVersion:item_.displayVersionString];
-   NSLog(@"✨ comparing version host \"%@\" to server \"%@\"", host_.displayVersion, item_.displayVersionString);
-   if (compare == NSOrderedSame) { // break tie with build number
-      compare = [self.versionComparator compareVersion:host_.version toVersion:item_.versionString];
-      NSLog(@"✨ tie break: comparing version host \"%@\" to server \"%@\"", host_.version, item_.versionString);
-   }
-   switch (compare) {
-      case NSOrderedAscending:   NSLog(@"✨ newer version on server");   break;
-      case NSOrderedSame:        NSLog(@"✨ same version as on server"); break;
-      case NSOrderedDescending:  NSLog(@"✨ newer version running");     break;
-   }
-   return compare;
 }
 
 - (void)didFindValidUpdate
